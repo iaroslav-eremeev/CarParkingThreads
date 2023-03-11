@@ -7,7 +7,7 @@ public class CarRepository {
 
     // Создавать новые машины - через репозиторий! (для генерации уникальных айди)
 
-    private ArrayList<Car> cars;
+    private ArrayList<Car> cars = new ArrayList<>();
 
     public CarRepository() {
     }

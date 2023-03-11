@@ -33,7 +33,7 @@ public class Main {
             public void run() {
                 try {
                     parking.newCar();
-                    wait(parking.getNextEnteringTime() * 1000L);
+                    Thread.sleep(parking.getNextEnteringTime() * 1000L);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -43,10 +43,16 @@ public class Main {
         Thread carsEntering = new Thread(new Runnable() {
             @Override
             public void run() {
-
+                try {
+                    parking.parkCar();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        })
+        });
 
+        carsAppearing.start();
+        carsEntering.start();
 
     }
 }

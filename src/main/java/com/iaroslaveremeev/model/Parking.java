@@ -133,6 +133,7 @@ public class Parking {
         Car car = new Car(carRepository);
         if (this.queue.size() <= this.maxQueueLength){
             this.queue.add(car);
+            System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue to parking");
         }
         else throw new InterruptedException("The maximum length of car queue is reached!");
     }
@@ -146,6 +147,7 @@ public class Parking {
                 syncQueue.put(car);
                 parkedCars.add(syncQueue.take());
                 setFreePlaces(freePlaces - car.getSize());
+                System.out.println(car.getType() + " car with id " + car.getId() + " is parked");
             }
         }
     }
