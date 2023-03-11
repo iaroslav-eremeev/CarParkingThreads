@@ -32,9 +32,12 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    parking.newCar();
-                    Thread.sleep(parking.getNextEnteringTime() * 1000L);
+                    while (true) {
+                        parking.newCar();
+                        Thread.sleep(parking.getNextEnteringTime() * 1000L);
+                    }
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
@@ -46,6 +49,7 @@ public class Main {
                 try {
                     parking.parkCar();
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
@@ -53,6 +57,5 @@ public class Main {
 
         carsAppearing.start();
         carsEntering.start();
-
     }
 }

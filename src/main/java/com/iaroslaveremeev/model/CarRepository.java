@@ -5,8 +5,6 @@ import java.util.Objects;
 
 public class CarRepository {
 
-    // Создавать новые машины - через репозиторий! (для генерации уникальных айди)
-
     private ArrayList<Car> cars = new ArrayList<>();
 
     public CarRepository() {
@@ -22,6 +20,10 @@ public class CarRepository {
 
     public void setCars(ArrayList<Car> cars) {
         this.cars = cars;
+    }
+
+    public void addCar(Car car){
+        this.cars.add(car);
     }
 
     @Override

@@ -7,97 +7,8 @@ import java.util.concurrent.SynchronousQueue;
 public class Parking {
     private int[] enteringInterval = new int[2];
     private int[] leavingInterval = new int[2];
-    private Queue<Car> queue = new Queue<Car>() {
-        @Override
-        public boolean add(Car car) {
-            return false;
-        }
-
-        @Override
-        public boolean offer(Car car) {
-            return false;
-        }
-
-        @Override
-        public Car remove() {
-            return null;
-        }
-
-        @Override
-        public Car poll() {
-            return null;
-        }
-
-        @Override
-        public Car element() {
-            return null;
-        }
-
-        @Override
-        public Car peek() {
-            return null;
-        }
-
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return false;
-        }
-
-        @Override
-        public Iterator<Car> iterator() {
-            return null;
-        }
-
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @Override
-        public <T> T[] toArray(T[] a) {
-            return null;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends Car> c) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public void clear() {
-
-        }
-    };
+    private LinkedList<Car> queue = new LinkedList<>();
+    private int queueLength;
     private int maxQueueLength;
     private CopyOnWriteArrayList<Car> parkedCars = new CopyOnWriteArrayList<>();
     private volatile int freePlaces;
@@ -131,8 +42,10 @@ public class Parking {
 
     public void newCar() throws InterruptedException {
         Car car = new Car(carRepository);
-        if (this.queue.size() <= this.maxQueueLength){
-            this.queue.add(car);
+        carRepository.addCar(car);
+        if (this.queueLength + car.getSize() <= this.maxQueueLength){
+            this.queue.offer(car);
+            this.queueLength += car.getSize();
             System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue to parking");
         }
         else throw new InterruptedException("The maximum length of car queue is reached!");
@@ -144,6 +57,7 @@ public class Parking {
                 SynchronousQueue<Car> syncQueue = new SynchronousQueue<>();
                 Car car = this.queue.poll();
                 assert car != null;
+                this.queueLength -= car.getSize();
                 syncQueue.put(car);
                 parkedCars.add(syncQueue.take());
                 setFreePlaces(freePlaces - car.getSize());
