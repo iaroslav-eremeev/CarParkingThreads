@@ -1,15 +1,12 @@
 package com.iaroslaveremeev.model;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.SynchronousQueue;
 
 public class Parking {
-    private int enteringInterval;
-    private int leavingInterval;
+    private int[] enteringInterval = new int[2];
+    private int[] leavingInterval = new int[2];
     private Queue<Car> queue = new Queue<Car>() {
         @Override
         public boolean add(Car car) {
@@ -109,7 +106,7 @@ public class Parking {
     public Parking() {
     }
 
-    public Parking(int freePlaces, int maxQueueLength, int enteringInterval, int leavingInterval) {
+    public Parking(int freePlaces, int maxQueueLength, int[] enteringInterval, int[] leavingInterval) {
         this.freePlaces = freePlaces;
         this.maxQueueLength = maxQueueLength;
         this.enteringInterval = enteringInterval;
@@ -124,24 +121,47 @@ public class Parking {
         this.freePlaces = freePlaces;
     }
 
+    public Queue<Car> getQueue() {
+        return queue;
+    }
+
+    public int getMaxQueueLength() {
+        return maxQueueLength;
+    }
+
     public void newCar() throws InterruptedException {
         Car car = new Car(carRepository);
         if (this.queue.size() <= this.maxQueueLength){
             this.queue.add(car);
         }
+        else throw new InterruptedException("The maximum length of car queue is reached!");
     }
 
-    public void parkCar(Car car) throws InterruptedException {
-        SynchronousQueue<Car> syncQueue = new SynchronousQueue<>();
-        if (freePlaces >= car.getSize()){
-            syncQueue.put(car);
-            parkedCars.add(syncQueue.take());
-            setFreePlaces(freePlaces - car.getSize());
+    public void parkCar() throws InterruptedException {
+        if (this.queue.peek() != null){
+            if (freePlaces >= this.queue.peek().getSize()){
+                SynchronousQueue<Car> syncQueue = new SynchronousQueue<>();
+                Car car = this.queue.poll();
+                assert car != null;
+                syncQueue.put(car);
+                parkedCars.add(syncQueue.take());
+                setFreePlaces(freePlaces - car.getSize());
+            }
         }
     }
 
     public void releaseCar(Car car){
 
+    }
+
+    public int getNextEnteringTime(){
+        Random random = new Random();
+        return random.ints(enteringInterval[0], enteringInterval[1] + 1).findFirst().getAsInt();
+    }
+
+    public int getNextLeavingTime(){
+        Random random = new Random();
+        return random.ints(leavingInterval[0], leavingInterval[1] + 1).findFirst().getAsInt();
     }
 
     @Override
