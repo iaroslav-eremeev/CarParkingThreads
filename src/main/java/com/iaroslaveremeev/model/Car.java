@@ -9,11 +9,8 @@ public class Car {
     private CarType type;
     private int size;
 
-    public Car() {
-    }
-
-    public Car(CarRepository carRepository) {
-        this.id = carRepository.getCars().size() + 1;
+    public Car(int id) {
+        this.id = id;
         Random random = new Random();
         int typeGenerator = random.nextInt(10);
         if (typeGenerator > 6) this.type = CarType.TRUCK;
