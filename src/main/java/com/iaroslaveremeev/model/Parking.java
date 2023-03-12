@@ -43,12 +43,15 @@ public class Parking {
     public void newCar() throws InterruptedException {
         Car car = new Car(carRepository);
         carRepository.addCar(car);
-        if (this.queueLength + car.getSize() <= this.maxQueueLength){
+        if (this.queueLength + car.getSize() > this.maxQueueLength){
+            throw new InterruptedException("The maximum length of car queue is reached!");
+        }
+        else {
             this.queue.offer(car);
             this.queueLength += car.getSize();
             System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue to parking");
+            System.out.println("Queue length is " + this.queueLength);
         }
-        else throw new InterruptedException("The maximum length of car queue is reached!");
     }
 
     public void parkCar() throws InterruptedException {
