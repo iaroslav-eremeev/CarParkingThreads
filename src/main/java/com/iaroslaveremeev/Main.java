@@ -40,18 +40,17 @@ public class Main {
         if (leavingFrom >= leavingUntil) {
             throw new InputMismatchException("First number of the interval must be smaller that the second one!");
         }
-
+        int[] leavingInterval = new int[]{leavingFrom, leavingUntil};
         threadAddQueue = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while (true) {
-                        if (queueLength == maxQueueLength) {
+                        Car car = new Car(carId++);
+                        if (queueLength + car.getSize() > maxQueueLength) {
                             threadLeaveParking.interrupt();
                             threadAddQueue.interrupt();
                         }
-                        Thread.sleep(3000L);
-                        Car car = new Car(carId++);
                         queue.add(car);
                         if (car.getType().equals(CarType.PASSENGER)){
                             queueLength++;
@@ -59,7 +58,7 @@ public class Main {
                         else queueLength +=2;
                         System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue");
                         event();
-                        System.out.println("Queue length after parking is " + queueLength);
+                        Thread.sleep(getNextAddingTime(enteringInterval));
                     }
                 } catch (InterruptedException e) {
                     System.out.println("Max queue length is reached!");
@@ -73,18 +72,17 @@ public class Main {
             public void run() {
                 try {
                     while (true) {
-                        Thread.sleep(10000L);
+                        Thread.sleep(getNextLeavingTime(leavingInterval));
                         Random random = new Random();
-                        if (parking.size() > 0){
+                        if (occupiedParkingLots > 0){
                             Car leavingCar = parking.get(random.nextInt(parking.size() - 1));
-                            if (leavingCar != null){
-                                parking.remove(leavingCar);
-                                System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking");
-                            }
+                            parking.remove(leavingCar);
+                            occupiedParkingLots -= leavingCar.getSize();
+                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking");
                         }
                         event();
                     }
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException ignored) {}
             }
         });
         threadLeaveParking.start();
@@ -92,25 +90,26 @@ public class Main {
     }
 
     public static synchronized void event() {
-        System.out.println("There are " + (parkingSize - parking.size()) + " free places before parking of a new car");
         Car parkingCar = queue.peek();
         if (parkingCar != null) {
-            if (parking.size() + parkingCar.getSize() <= parkingSize) {
+            if (occupiedParkingLots + parkingCar.getSize() <= parkingLotsNumber) {
+                System.out.println("Parking is possible!");
                 parking.add(queue.poll());
                 queueLength -= parkingCar.getSize();
-                System.out.println("There are " + (parkingSize - parking.size()) + " free places after parking a new car");
+                occupiedParkingLots += parkingCar.getSize();
+                System.out.println("There are " + (parkingLotsNumber - occupiedParkingLots) + " free places after parking a new car");
             }
             else System.out.println("Parking is full!");
         }
     }
 
-    public static int getNextAddingTime(){
+    public static long getNextAddingTime(int[] enteringInterval){
         Random random = new Random();
-        return random.ints(enteringInterval[0], enteringInterval[1] + 1).findFirst().getAsInt();
+        return random.ints(enteringInterval[0], enteringInterval[1] + 1).findFirst().getAsInt() * 1000L;
     }
 
-    public static int getNextLeavingTime(){
+    public static long getNextLeavingTime(int[] leavingInterval){
         Random random = new Random();
-        return random.ints(leavingInterval[0], leavingInterval[1] + 1).findFirst().getAsInt();
+        return random.ints(leavingInterval[0], leavingInterval[1] + 1).findFirst().getAsInt() * 1000L;
     }
 }
