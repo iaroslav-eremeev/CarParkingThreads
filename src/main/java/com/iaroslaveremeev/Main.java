@@ -13,7 +13,7 @@ public class Main {
 
     private static Thread threadAddQueue;
     private static Thread threadLeaveParking;
-    private static Thread statusMessages;
+    private static Thread threadStatusMessages;
     private static int carId = 1;
     private static CopyOnWriteArrayList<Car> parking = new CopyOnWriteArrayList<>();
     private static CopyOnWriteArrayList<Car> passengerCarsParked = new CopyOnWriteArrayList<>();
@@ -59,7 +59,7 @@ public class Main {
                         if (queueLength > maxQueueLength) {
                             threadLeaveParking.interrupt();
                             threadAddQueue.interrupt();
-                            statusMessages.interrupt();
+                            threadStatusMessages.interrupt();
                             throw new InterruptedException();
                         }
                         event();
@@ -82,6 +82,10 @@ public class Main {
                         if (parking.size() > 0){
                             Car leavingCar = parking.get(random.nextInt(parking.size()));
                             parking.remove(leavingCar);
+                            if (leavingCar.getType().equals(CarType.PASSENGER)){
+                                passengerCarsParked.remove(leavingCar);
+                            }
+                            else trucksParked.remove(leavingCar);
                             occupiedParkingLots -= leavingCar.getSize();
                             System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking.");
                         }
@@ -92,7 +96,7 @@ public class Main {
         });
         threadLeaveParking.start();
 
-        statusMessages = new Thread(new Runnable() {
+        threadStatusMessages = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -104,11 +108,10 @@ public class Main {
                         System.out.println("Trucks: " + trucksParked.size());
                         System.out.println("Cars in the queue: " + queueLength);
                     }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                } catch (InterruptedException ignored) {}
             }
         });
+        threadStatusMessages.start();
     }
 
     public static synchronized void event() {
@@ -116,6 +119,10 @@ public class Main {
         if (parkingCar != null) {
             if (occupiedParkingLots + parkingCar.getSize() <= parkingLotsNumber) {
                 parking.add(queue.poll());
+                if (parkingCar.getType().equals(CarType.PASSENGER)){
+                    passengerCarsParked.add(parkingCar);
+                }
+                else trucksParked.add(parkingCar);
                 queueLength -= parkingCar.getSize();
                 occupiedParkingLots += parkingCar.getSize();
                 System.out.println(parkingCar.getType() + " car with id " + parkingCar.getId() + " is parked. ");
