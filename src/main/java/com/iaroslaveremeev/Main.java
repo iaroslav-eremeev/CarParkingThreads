@@ -48,15 +48,19 @@ public class Main {
                     while (true) {
                         Car car = new Car(carId++);
                         if (queueLength + car.getSize() > maxQueueLength) {
+                            System.out.println("Car with size " + car.getSize() + " doesn't fit in the queue, which max " +
+                                    "length is " + maxQueueLength);
                             threadLeaveParking.interrupt();
                             threadAddQueue.interrupt();
+                            throw new InterruptedException();
                         }
                         queue.add(car);
                         if (car.getType().equals(CarType.PASSENGER)){
                             queueLength++;
                         }
                         else queueLength +=2;
-                        System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue");
+                        System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue." +
+                                " Queue length is now " + queueLength);
                         event();
                         Thread.sleep(getNextAddingTime(enteringInterval));
                     }
@@ -74,11 +78,12 @@ public class Main {
                     while (true) {
                         Thread.sleep(getNextLeavingTime(leavingInterval));
                         Random random = new Random();
-                        if (occupiedParkingLots > 0){
-                            Car leavingCar = parking.get(random.nextInt(parking.size() - 1));
+                        if (parking.size() > 0){
+                            Car leavingCar = parking.get(random.nextInt(parking.size()));
                             parking.remove(leavingCar);
                             occupiedParkingLots -= leavingCar.getSize();
-                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking");
+                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking." +
+                                    " There are now " + (parkingLotsNumber - occupiedParkingLots) + " free lots.");
                         }
                         event();
                     }
@@ -97,7 +102,9 @@ public class Main {
                 parking.add(queue.poll());
                 queueLength -= parkingCar.getSize();
                 occupiedParkingLots += parkingCar.getSize();
-                System.out.println("There are " + (parkingLotsNumber - occupiedParkingLots) + " free places after parking a new car");
+                System.out.println(parkingCar.getType() + " car with id " + parkingCar.getId() + " is parked. " +
+                        "There are " + (parkingLotsNumber - occupiedParkingLots) + " free lots now");
+                System.out.println("Queue length is " + queueLength + " now");
             }
             else System.out.println("Parking is full!");
         }
