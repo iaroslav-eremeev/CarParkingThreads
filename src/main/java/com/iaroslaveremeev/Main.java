@@ -11,20 +11,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
 
-    private static Thread threadAddQueue;
-    private static Thread threadLeaveParking;
-    private static Thread threadStatusMessages;
-    private static int carId = 1;
-    private static CopyOnWriteArrayList<Car> parking = new CopyOnWriteArrayList<>();
-    private static CopyOnWriteArrayList<Car> passengerCarsParked = new CopyOnWriteArrayList<>();
-    private static CopyOnWriteArrayList<Car> trucksParked = new CopyOnWriteArrayList<>();
-    private static int parkingLotsNumber;
-    private static int occupiedParkingLots;
-    private static ConcurrentLinkedQueue<Car> queue = new ConcurrentLinkedQueue<>();
-    private static int queueLength = 0;
+    private static Thread threadAddQueue; // Add new car in the queue to parking thread
+    private static Thread threadLeaveParking; // Release one car from the parking thread
+    private static Thread threadStatusMessages; // Current number of cars in parking (passenger and trucks) and in the queue
+    private static int carId = 1; // starting car id
+    private static CopyOnWriteArrayList<Car> parking = new CopyOnWriteArrayList<>(); // All parked cars array
+    private static CopyOnWriteArrayList<Car> passengerCarsParked = new CopyOnWriteArrayList<>(); // All passenger cars parked
+    private static CopyOnWriteArrayList<Car> trucksParked = new CopyOnWriteArrayList<>(); // All trucks parked
+    private static int parkingLotsNumber; // Parking size
+    private static int occupiedParkingLots; // Occupied lots
+    private static ConcurrentLinkedQueue<Car> queue = new ConcurrentLinkedQueue<>(); // Queue to parking
+    private static int queueLength = 0; // Queue length
 
     public static void main(String[] args) throws InterruptedException {
 
+        // User may choose the parking size, maximum length of the queue before the parking
+        // the interval of new cars appearing in the queue and the interval of cars leaving the queue
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter number of parking lots:");
         parkingLotsNumber = scanner.nextInt();
@@ -44,6 +46,8 @@ public class Main {
             throw new InputMismatchException("First number of the interval must be smaller that the second one!");
         }
         int[] leavingInterval = new int[]{leavingFrom, leavingUntil};
+
+        // Define and run the thread, that deals with new cars appearing in the queue to the parking
         threadAddQueue = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -72,6 +76,7 @@ public class Main {
         });
         threadAddQueue.start();
 
+        // Define and run the thread that deals with cars leaving the parking
         threadLeaveParking = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -96,6 +101,7 @@ public class Main {
         });
         threadLeaveParking.start();
 
+        // Define and run the thread posting status messages each 5 seconds
         threadStatusMessages = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -114,6 +120,7 @@ public class Main {
         threadStatusMessages.start();
     }
 
+    // Synchronized method letting cars leave the queue and enter the parking
     public static synchronized void event() {
         Car parkingCar = queue.peek();
         if (parkingCar != null) {
@@ -130,11 +137,13 @@ public class Main {
         }
     }
 
+    // Method to calculate random interval of new cars appearing in the queue
     public static long getNextAddingTime(int[] enteringInterval){
         Random random = new Random();
         return random.ints(enteringInterval[0], enteringInterval[1] + 1).findFirst().getAsInt() * 1000L;
     }
 
+    // Method to calculate random interval of cars leaving the parking
     public static long getNextLeavingTime(int[] leavingInterval){
         Random random = new Random();
         return random.ints(leavingInterval[0], leavingInterval[1] + 1).findFirst().getAsInt() * 1000L;
