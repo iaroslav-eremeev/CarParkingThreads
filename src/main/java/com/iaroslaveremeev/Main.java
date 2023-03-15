@@ -135,16 +135,4 @@ public class Main {
             }
         }
     }
-
-    // Method to calculate random interval of new cars appearing in the queue
-    public static long getNextAddingTime(int[] enteringInterval){
-        Random random = new Random();
-        return random.ints(enteringInterval[0], enteringInterval[1] + 1).findFirst().getAsInt() * 1000L;
-    }
-
-    // Method to calculate random interval of cars leaving the parking
-    public static long getNextLeavingTime(int[] leavingInterval){
-        Random random = new Random();
-        return random.ints(leavingInterval[0], leavingInterval[1] + 1).findFirst().getAsInt() * 1000L;
-    }
 }
