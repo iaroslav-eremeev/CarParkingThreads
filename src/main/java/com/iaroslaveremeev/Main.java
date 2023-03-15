@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
-
     private static Thread threadAddQueue; // Add new car in the queue to parking thread
     private static Thread threadLeaveParking; // Release one car from the parking thread
     private static Thread threadStatusMessages; // Current number of cars in parking (passenger and trucks) and in the queue
