@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Queue {
-    private int carId = 1; // starting car id
+    private int carId = 0; // starting car id
     private ConcurrentLinkedQueue<Car> queue = new ConcurrentLinkedQueue<>(); // Queue to parking
     private int queueLength = 0; // Queue length
     private int maxQueueLength;
@@ -19,10 +19,6 @@ public class Queue {
         return carId;
     }
 
-    public void setCarId(int carId) {
-        this.carId = carId;
-    }
-
     public ConcurrentLinkedQueue<Car> getQueue() {
         return queue;
     }
@@ -35,8 +31,21 @@ public class Queue {
         return queueLength;
     }
 
-    public void setQueueLength(int queueLength) {
-        this.queueLength = queueLength;
+    public int getMaxQueueLength() {
+        return maxQueueLength;
+    }
+
+    public int nextCarId() {
+        this.carId++;
+        return this.carId;
+    }
+
+    public void addCar(Car car) {
+        this.queue.add(car);
+        if (car.getType().equals(CarType.PASSENGER)){
+            this.queueLength++;
+        }
+        else this.queueLength +=2;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class LeavingInterval {
     }
 
     // Method to calculate random interval of cars leaving the parking
-    public long getNextLeavingTime(int[] leavingInterval){
+    public long nextLeave(int[] leavingInterval){
         Random random = new Random();
         return random.ints(leavingFrom, leavingUntil + 1).findFirst().getAsInt() * 1000L;
     }

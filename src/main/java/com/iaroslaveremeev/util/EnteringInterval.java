@@ -16,7 +16,7 @@ public class EnteringInterval {
     }
 
     // Method to calculate random interval of new cars appearing in the queue
-    public long getNextAddingTime(int[] enteringInterval){
+    public long nextEntry(){
         Random random = new Random();
         return random.ints(enteringFrom, enteringUntil + 1).findFirst().getAsInt() * 1000L;
     }
