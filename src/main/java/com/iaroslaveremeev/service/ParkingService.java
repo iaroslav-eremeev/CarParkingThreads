@@ -63,23 +63,25 @@ public class ParkingService {
     }
 
     // Method with thread posting status messages each 5 seconds
-    threadStatusMessages = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                while (true){
-                    Thread.sleep(5000L);
-                    System.out.println("Free parking lots: " + (parkingLotsNumber - occupiedParkingLots));
-                    System.out.println("Occupied lots: " + occupiedParkingLots);
-                    System.out.println("Passenger cars: " + passengerCarsParked.size());
-                    System.out.println("Trucks: " + trucksParked.size());
-                    System.out.println("Cars in the queue: " + queueLength);
-                }
-            } catch (InterruptedException ignored) {}
-        }
-    });
+    public void printStatusMessages(Queue queue, Parking parking) {
+        threadStatusMessages = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true){
+                        Thread.sleep(5000L);
+                        System.out.println("Free parking lots: " +
+                                (parking.getParkingLotsNumber() - parking.getOccupiedParkingLots()));
+                        System.out.println("Occupied lots: " + parking.getOccupiedParkingLots());
+                        System.out.println("Passenger cars: " + parking.getPassengerCarsParked().size());
+                        System.out.println("Trucks: " + parking.getTrucksParked().size());
+                        System.out.println("Cars in the queue: " + queue.getQueue());
+                    }
+                } catch (InterruptedException ignored) {}
+            }
+        });
         threadStatusMessages.start();
-}
+    }
 
     // Synchronized method letting cars leave the queue and enter the parking
     public static synchronized void event() {
