@@ -2,16 +2,20 @@ package com.iaroslaveremeev.service;
 
 import com.iaroslaveremeev.model.Car;
 import com.iaroslaveremeev.model.CarType;
+import com.iaroslaveremeev.model.Parking;
 import com.iaroslaveremeev.model.Queue;
 import com.iaroslaveremeev.util.EnteringInterval;
+import com.iaroslaveremeev.util.LeavingInterval;
 
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ParkingService {
     private static Thread threadGrowQueue; // Add new car in the queue to parking thread
     private static Thread threadLeaveParking; // Release one car from the parking thread
     private static Thread threadStatusMessages; // Current number of cars in parking (passenger and trucks) and in the queue
 
+    // Method with thread for adding cars in the queue before parking
     public void growQueue(Queue queue, EnteringInterval enteringInterval) {
         threadGrowQueue = new Thread(new Runnable() {
             @Override
@@ -37,61 +41,28 @@ public class ParkingService {
         });
         threadGrowQueue.start();
     }
-    // Define and run the thread, that deals with new cars appearing in the queue to the parking
-    threadAddQueue = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    Car car = new Car(carId++);
-                    System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue.");
-                    queue.add(car);
-                    if (car.getType().equals(CarType.PASSENGER)){
-                        queueLength++;
-                    }
-                    else queueLength +=2;
-                    if (queueLength > maxQueueLength) {
-                        threadLeaveParking.interrupt();
-                        threadAddQueue.interrupt();
-                        threadStatusMessages.interrupt();
-                        throw new InterruptedException();
-                    }
-                    event();
-                    Thread.sleep(getNextAddingTime(enteringInterval));
-                }
-            } catch (InterruptedException e) {
-                System.out.println("Maximum queue length is reached!");
-            }
-        }
-    });
-        threadAddQueue.start();
 
-    // Define and run the thread that deals with cars leaving the parking
-    threadLeaveParking = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    Thread.sleep(getNextLeavingTime(leavingInterval));
-                    Random random = new Random();
-                    if (parking.size() > 0){
-                        Car leavingCar = parking.get(random.nextInt(parking.size()));
-                        parking.remove(leavingCar);
-                        if (leavingCar.getType().equals(CarType.PASSENGER)){
-                            passengerCarsParked.remove(leavingCar);
+    // Method with thread for letting cars out of parking
+    public void leaveParking(Parking parking, LeavingInterval leavingInterval) {
+        threadLeaveParking = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        Thread.sleep(leavingInterval.nextLeave());
+                        if (parking.getParkedCars().size() > 0){
+                            Car leavingCar = parking.releaseRandomCar();
+                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking.");
                         }
-                        else trucksParked.remove(leavingCar);
-                        occupiedParkingLots -= leavingCar.getSize();
-                        System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking.");
+                        event();
                     }
-                    event();
-                }
-            } catch (InterruptedException ignored) {}
-        }
-    });
+                } catch (InterruptedException ignored) {}
+            }
+        });
         threadLeaveParking.start();
+    }
 
-    // Define and run the thread posting status messages each 5 seconds
+    // Method with thread posting status messages each 5 seconds
     threadStatusMessages = new Thread(new Runnable() {
         @Override
         public void run() {

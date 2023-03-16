@@ -1,10 +1,11 @@
 package com.iaroslaveremeev.model;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Parking {
-    private CopyOnWriteArrayList<Car> parking = new CopyOnWriteArrayList<>(); // All parked cars array
+    private CopyOnWriteArrayList<Car> parkedCars = new CopyOnWriteArrayList<>(); // All parked cars array
     private CopyOnWriteArrayList<Car> passengerCarsParked = new CopyOnWriteArrayList<>(); // All passenger cars parked
     private CopyOnWriteArrayList<Car> trucksParked = new CopyOnWriteArrayList<>(); // All trucks parked
     private int parkingLotsNumber; // Parking size
@@ -17,12 +18,12 @@ public class Parking {
         this.parkingLotsNumber = parkingLotsNumber;
     }
 
-    public CopyOnWriteArrayList<Car> getParking() {
-        return parking;
+    public CopyOnWriteArrayList<Car> getParkedCars() {
+        return parkedCars;
     }
 
-    public void setParking(CopyOnWriteArrayList<Car> parking) {
-        this.parking = parking;
+    public void setParkedCars(CopyOnWriteArrayList<Car> parkedCars) {
+        this.parkedCars = parkedCars;
     }
 
     public CopyOnWriteArrayList<Car> getPassengerCarsParked() {
@@ -57,23 +58,35 @@ public class Parking {
         this.occupiedParkingLots = occupiedParkingLots;
     }
 
+    public Car releaseRandomCar(){
+        Random random = new Random();
+        Car leavingCar = parkedCars.get(random.nextInt(parkedCars.size()));
+        parkedCars.remove(leavingCar);
+        if (leavingCar.getType().equals(CarType.PASSENGER)){
+            passengerCarsParked.remove(leavingCar);
+        }
+        else trucksParked.remove(leavingCar);
+        occupiedParkingLots -= leavingCar.getSize();
+        return leavingCar;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Parking parking1 = (Parking) o;
-        return parkingLotsNumber == parking1.parkingLotsNumber && occupiedParkingLots == parking1.occupiedParkingLots && Objects.equals(parking, parking1.parking) && Objects.equals(passengerCarsParked, parking1.passengerCarsParked) && Objects.equals(trucksParked, parking1.trucksParked);
+        return parkingLotsNumber == parking1.parkingLotsNumber && occupiedParkingLots == parking1.occupiedParkingLots && Objects.equals(parkedCars, parking1.parkedCars) && Objects.equals(passengerCarsParked, parking1.passengerCarsParked) && Objects.equals(trucksParked, parking1.trucksParked);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(parking, passengerCarsParked, trucksParked, parkingLotsNumber, occupiedParkingLots);
+        return Objects.hash(parkedCars, passengerCarsParked, trucksParked, parkingLotsNumber, occupiedParkingLots);
     }
 
     @Override
     public String toString() {
         return "Parking{" +
-                "parking=" + parking +
+                "parkedCars=" + parkedCars +
                 ", passengerCarsParked=" + passengerCarsParked +
                 ", trucksParked=" + trucksParked +
                 ", parkingLotsNumber=" + parkingLotsNumber +
