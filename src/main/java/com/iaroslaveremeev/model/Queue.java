@@ -48,6 +48,11 @@ public class Queue {
         else this.queueLength +=2;
     }
 
+    public void releaseCar(Car car){
+        queue.poll();
+        queueLength -= car.getSize();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

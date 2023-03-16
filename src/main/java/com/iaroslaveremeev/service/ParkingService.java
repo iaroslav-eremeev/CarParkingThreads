@@ -84,18 +84,12 @@ public class ParkingService {
     }
 
     // Synchronized method letting cars leave the queue and enter the parking
-    public static synchronized void event() {
-        Car parkingCar = queue.peek();
-        if (parkingCar != null) {
-            if (occupiedParkingLots + parkingCar.getSize() <= parkingLotsNumber) {
-                parking.add(queue.poll());
-                if (parkingCar.getType().equals(CarType.PASSENGER)){
-                    passengerCarsParked.add(parkingCar);
-                }
-                else trucksParked.add(parkingCar);
-                queueLength -= parkingCar.getSize();
-                occupiedParkingLots += parkingCar.getSize();
-                System.out.println(parkingCar.getType() + " car with id " + parkingCar.getId() + " is parked. ");
+    public static synchronized void event(Queue queue, Parking parking) {
+        Car car = queue.getQueue().peek();
+        if (car != null) {
+            parking.addCar(car);
+            queue.releaseCar(car);
+            System.out.println(car.getType() + " car with id " + car.getId() + " is parked. ");
             }
         }
     }

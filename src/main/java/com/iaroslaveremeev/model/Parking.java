@@ -58,6 +58,16 @@ public class Parking {
         this.occupiedParkingLots = occupiedParkingLots;
     }
 
+    public void addCar(Car car) {
+        if (occupiedParkingLots + car.getSize() <= parkingLotsNumber) {
+            parkedCars.add(car);
+            if (car.getType().equals(CarType.PASSENGER)) {
+                passengerCarsParked.add(car);
+            } else trucksParked.add(car);
+            occupiedParkingLots += car.getSize();
+        }
+    }
+
     public Car releaseRandomCar(){
         Random random = new Random();
         Car leavingCar = parkedCars.get(random.nextInt(parkedCars.size()));
