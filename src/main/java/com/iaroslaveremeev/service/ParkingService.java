@@ -11,12 +11,23 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ParkingService {
-    private static Thread threadGrowQueue; // Add new car in the queue to parking thread
-    private static Thread threadLeaveParking; // Release one car from the parking thread
-    private static Thread threadStatusMessages; // Current number of cars in parking (passenger and trucks) and in the queue
+    private Thread threadGrowQueue;
+    private Thread threadLeaveParking;
+    private Thread threadStatusMessages;
+    private final Queue queue;
+    private final Parking parking;
+    private final EnteringInterval enteringInterval;
+    private final LeavingInterval leavingInterval;
+
+    public ParkingService(Queue queue, Parking parking, EnteringInterval enteringInterval, LeavingInterval leavingInterval) {
+        this.queue = queue;
+        this.parking = parking;
+        this.enteringInterval = enteringInterval;
+        this.leavingInterval = leavingInterval;
+    }
 
     // Method with thread for adding cars in the queue before parking
-    public void growQueue(Queue queue, EnteringInterval enteringInterval) {
+    public void growQueue() {
         threadGrowQueue = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -43,7 +54,7 @@ public class ParkingService {
     }
 
     // Method with thread for letting cars out of parking
-    public void leaveParking(Parking parking, LeavingInterval leavingInterval) {
+    public void leaveParking() {
         threadLeaveParking = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -63,7 +74,7 @@ public class ParkingService {
     }
 
     // Method with thread posting status messages each 5 seconds
-    public void printStatusMessages(Queue queue, Parking parking) {
+    public void printStatusMessages() {
         threadStatusMessages = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -84,7 +95,7 @@ public class ParkingService {
     }
 
     // Synchronized method letting cars leave the queue and enter the parking
-    public static synchronized void event(Queue queue, Parking parking) {
+    public synchronized void event() {
         Car car = queue.getQueue().peek();
         if (car != null) {
             parking.addCar(car);
@@ -92,6 +103,5 @@ public class ParkingService {
             System.out.println(car.getType() + " car with id " + car.getId() + " is parked. ");
             }
         }
-    }
 
 }
