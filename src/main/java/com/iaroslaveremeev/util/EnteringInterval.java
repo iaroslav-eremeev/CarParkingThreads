@@ -4,8 +4,8 @@ import java.util.InputMismatchException;
 import java.util.Random;
 
 public class EnteringInterval {
-    private int enteringFrom;
-    private int enteringUntil;
+    private final int enteringFrom;
+    private final int enteringUntil;
 
     public EnteringInterval(int enteringFrom, int enteringUntil) {
         if (enteringFrom >= enteringUntil) {
@@ -16,7 +16,7 @@ public class EnteringInterval {
     }
 
     // Method to calculate random interval of new cars appearing in the queue
-    public long nextEntry(){
+    public long nextCarAppear(){
         Random random = new Random();
         return random.ints(enteringFrom, enteringUntil + 1).findFirst().getAsInt() * 1000L;
     }

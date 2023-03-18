@@ -8,23 +8,14 @@ public class Queue {
     private ConcurrentLinkedQueue<Car> queue = new ConcurrentLinkedQueue<>(); // Queue to parking
     private int queueLength = 0; // Queue length
     private int maxQueueLength;
-    public Queue() {
-    }
 
+    // Constructor - only maxQueueLength read from console is used
     public Queue(int maxQueueLength) {
         this.maxQueueLength = maxQueueLength;
     }
 
-    public int getCarId() {
-        return carId;
-    }
-
     public ConcurrentLinkedQueue<Car> getQueue() {
         return queue;
-    }
-
-    public void setQueue(ConcurrentLinkedQueue<Car> queue) {
-        this.queue = queue;
     }
 
     public int getQueueLength() {
@@ -35,11 +26,13 @@ public class Queue {
         return maxQueueLength;
     }
 
+    // Generate new car id
     public int nextCarId() {
         this.carId++;
         return this.carId;
     }
 
+    // Method to add new car in the queue
     public void addCar(Car car) {
         this.queue.add(car);
         if (car.getType().equals(CarType.PASSENGER)){
@@ -48,6 +41,7 @@ public class Queue {
         else this.queueLength +=2;
     }
 
+    // Release car from the queue before entering parking
     public void releaseCar(Car car){
         queue.poll();
         queueLength -= car.getSize();

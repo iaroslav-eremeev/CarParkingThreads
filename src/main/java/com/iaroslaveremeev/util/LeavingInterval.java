@@ -4,8 +4,8 @@ import java.util.InputMismatchException;
 import java.util.Random;
 
 public class LeavingInterval {
-    private int leavingFrom;
-    private int leavingUntil;
+    private final int leavingFrom;
+    private final int leavingUntil;
 
     public LeavingInterval(int leavingFrom, int leavingUntil) {
         if (leavingFrom >= leavingUntil) {
@@ -16,7 +16,7 @@ public class LeavingInterval {
     }
 
     // Method to calculate random interval of cars leaving the parking
-    public long nextLeave(){
+    public long nextParkingLeave(){
         Random random = new Random();
         return random.ints(leavingFrom, leavingUntil + 1).findFirst().getAsInt() * 1000L;
     }

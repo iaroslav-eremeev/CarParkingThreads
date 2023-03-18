@@ -1,14 +1,10 @@
 package com.iaroslaveremeev.service;
 
 import com.iaroslaveremeev.model.Car;
-import com.iaroslaveremeev.model.CarType;
 import com.iaroslaveremeev.model.Parking;
 import com.iaroslaveremeev.model.Queue;
 import com.iaroslaveremeev.util.EnteringInterval;
 import com.iaroslaveremeev.util.LeavingInterval;
-
-import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ParkingService {
     private Thread threadGrowQueue;
@@ -27,14 +23,14 @@ public class ParkingService {
     }
 
     // Method with thread for adding cars in the queue before parking
-    public void growQueue() {
+    public void allowJoiningQueue() {
         threadGrowQueue = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while (true) {
                         Car car = new Car(queue.nextCarId());
-                        System.out.println(car.getType() + " car with id " + car.getId() + " entered the queue.");
+                        System.out.println(car.getType() + " car with id " + car.getId() + " joined the queue.");
                         queue.addCar(car);
                         if (queue.getQueueLength() > queue.getMaxQueueLength()) {
                             threadLeaveParking.interrupt();
@@ -42,8 +38,8 @@ public class ParkingService {
                             threadStatusMessages.interrupt();
                             throw new InterruptedException();
                         }
-                        event();
-                        Thread.sleep(enteringInterval.nextEntry());
+                        allowParkingEntry();
+                        Thread.sleep(enteringInterval.nextCarAppear());
                     }
                 } catch (InterruptedException e) {
                     System.out.println("Maximum queue length is reached!");
@@ -54,18 +50,18 @@ public class ParkingService {
     }
 
     // Method with thread for letting cars out of parking
-    public void leaveParking() {
+    public void allowLeavingFromParking() {
         threadLeaveParking = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while (true) {
-                        Thread.sleep(leavingInterval.nextLeave());
+                        Thread.sleep(leavingInterval.nextParkingLeave());
                         if (parking.getParkedCars().size() > 0){
                             Car leavingCar = parking.releaseRandomCar();
-                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left parking.");
+                            System.out.println(leavingCar.getType() + " car with id " + leavingCar.getId() + " left the parking.");
                         }
-                        event();
+                        allowParkingEntry();
                     }
                 } catch (InterruptedException ignored) {}
             }
@@ -95,7 +91,7 @@ public class ParkingService {
     }
 
     // Synchronized method letting cars leave the queue and enter the parking
-    public synchronized void event() {
+    public synchronized void allowParkingEntry() {
         Car car = queue.getQueue().peek();
         if (car != null) {
             try {

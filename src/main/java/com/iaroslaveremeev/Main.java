@@ -1,7 +1,5 @@
 package com.iaroslaveremeev;
 
-import com.iaroslaveremeev.model.Car;
-import com.iaroslaveremeev.model.CarType;
 import com.iaroslaveremeev.model.Parking;
 import com.iaroslaveremeev.model.Queue;
 import com.iaroslaveremeev.service.ParkingService;
@@ -29,9 +27,10 @@ public class Main {
         System.out.println("Enter the interval of parked cars leaving in seconds (2 integer numbers):");
         LeavingInterval leavingInterval = new LeavingInterval(scanner.nextInt(), scanner.nextInt());
 
+        // Test
         ParkingService parkingService = new ParkingService(queue, parking, enteringInterval, leavingInterval);
-        parkingService.growQueue();
-        parkingService.leaveParking();
+        parkingService.allowJoiningQueue();
+        parkingService.allowLeavingFromParking();
         parkingService.printStatusMessages();
     }
 }
