@@ -86,7 +86,7 @@ public class ParkingService {
                         System.out.println("Occupied lots: " + parking.getOccupiedParkingLots());
                         System.out.println("Passenger cars: " + parking.getPassengerCarsParked().size());
                         System.out.println("Trucks: " + parking.getTrucksParked().size());
-                        System.out.println("Cars in the queue: " + queue.getQueue());
+                        System.out.println("Cars in the queue: " + queue.getQueue().size());
                     }
                 } catch (InterruptedException ignored) {}
             }
@@ -98,10 +98,10 @@ public class ParkingService {
     public synchronized void event() {
         Car car = queue.getQueue().peek();
         if (car != null) {
-            parking.addCar(car);
-            queue.releaseCar(car);
-            System.out.println(car.getType() + " car with id " + car.getId() + " is parked. ");
-            }
+            try {
+                parking.addCar(car);
+                queue.releaseCar(car);
+            } catch (RuntimeException ignored) {}
         }
-
+    }
 }

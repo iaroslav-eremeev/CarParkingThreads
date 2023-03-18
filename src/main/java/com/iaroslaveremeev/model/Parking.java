@@ -65,7 +65,9 @@ public class Parking {
                 passengerCarsParked.add(car);
             } else trucksParked.add(car);
             occupiedParkingLots += car.getSize();
+            System.out.println(car.getType() + " car with id " + car.getId() + " is parked. ");
         }
+        else throw new RuntimeException();
     }
 
     public Car releaseRandomCar(){
