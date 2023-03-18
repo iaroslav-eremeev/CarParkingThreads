@@ -9,9 +9,6 @@ public class Car {
     private CarType type; // ENUM - either PASSENGER CAR or TRUCK
     private int size; // number of places that this car occupies on parking
 
-    public Car() {
-    }
-
     public Car(int id) {
         this.id = id;
         Random random = new Random();
@@ -28,24 +25,12 @@ public class Car {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public CarType getType() {
         return type;
     }
 
-    public void setType(CarType type) {
-        this.type = type;
-    }
-
     public int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     @Override
